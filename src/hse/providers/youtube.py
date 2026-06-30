@@ -8,6 +8,8 @@ from typing import Iterable
 from hse.models import PostJob
 
 YOUTUBE_UPLOAD_SCOPE = "https://www.googleapis.com/auth/youtube.upload"
+YOUTUBE_MANAGE_SCOPE = "https://www.googleapis.com/auth/youtube.force-ssl"
+YOUTUBE_SCOPES = (YOUTUBE_UPLOAD_SCOPE, YOUTUBE_MANAGE_SCOPE)
 DEFAULT_ROOT = Path("/mnt/c/Users/LENOVO/Desktop/Ai/03_AI_Projects/Hermes_Social_Engine")
 DEFAULT_CLIENT_SECRETS = DEFAULT_ROOT / "secrets" / "google_oauth_client.json"
 DEFAULT_TOKEN_FILE = DEFAULT_ROOT / "data" / "youtube_token.json"
@@ -45,7 +47,7 @@ def run_oauth_local_server(
     client_secrets: Path = DEFAULT_CLIENT_SECRETS,
     token_file: Path = DEFAULT_TOKEN_FILE,
     port: int = 8088,
-    scopes: Iterable[str] = (YOUTUBE_UPLOAD_SCOPE,),
+    scopes: Iterable[str] = YOUTUBE_SCOPES,
 ) -> Path:
     """Run Google installed-app OAuth and persist refresh token.
 
@@ -86,7 +88,7 @@ def run_oauth_local_server(
 def credentials_from_token(token_file: Path = DEFAULT_TOKEN_FILE):
     from google.oauth2.credentials import Credentials
     data = _load_json(Path(token_file))
-    return Credentials.from_authorized_user_info(data, scopes=[YOUTUBE_UPLOAD_SCOPE])
+    return Credentials.from_authorized_user_info(data, scopes=list(data.get("scopes") or YOUTUBE_SCOPES))
 
 
 class YouTubeProvider:

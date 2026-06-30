@@ -1,0 +1,13 @@
+file '/mnt/c/Users/LENOVO/Desktop/Ai/03_AI_Projects/Hermes_Social_Engine/assets/tiktok_review/slide_01.png'
+duration 4
+file '/mnt/c/Users/LENOVO/Desktop/Ai/03_AI_Projects/Hermes_Social_Engine/assets/tiktok_review/slide_02.png'
+duration 4
+file '/mnt/c/Users/LENOVO/Desktop/Ai/03_AI_Projects/Hermes_Social_Engine/assets/tiktok_review/slide_03.png'
+duration 4
+file '/mnt/c/Users/LENOVO/Desktop/Ai/03_AI_Projects/Hermes_Social_Engine/assets/tiktok_review/slide_04.png'
+duration 4
+file '/mnt/c/Users/LENOVO/Desktop/Ai/03_AI_Projects/Hermes_Social_Engine/assets/tiktok_review/slide_05.png'
+duration 4
+file '/mnt/c/Users/LENOVO/Desktop/Ai/03_AI_Projects/Hermes_Social_Engine/assets/tiktok_review/slide_06.png'
+duration 4
+file '/mnt/c/Users/LENOVO/Desktop/Ai/03_AI_Projects/Hermes_Social_Engine/assets/tiktok_review/slide_06.png'

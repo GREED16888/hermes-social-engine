@@ -1,0 +1,34 @@
+[
+  {
+    "action": "updated_short_metadata",
+    "video_id": "RxaJ6fFqSv0",
+    "url": "https://youtu.be/RxaJ6fFqSv0",
+    "publishAt": "2026-06-30T21:30:00Z",
+    "privacyStatus": "private",
+    "title": "Money Printer Shorts 1 | Original Style #Shorts"
+  },
+  {
+    "action": "updated_short_metadata",
+    "video_id": "3koelM77fbw",
+    "url": "https://youtu.be/3koelM77fbw",
+    "publishAt": "2026-06-30T23:30:00Z",
+    "privacyStatus": "private",
+    "title": "Money Printer Shorts 2 | Original Style #Shorts"
+  },
+  {
+    "action": "cancelled_non_short_schedule",
+    "video_id": "EcXkBHudoYo",
+    "url": "https://youtu.be/EcXkBHudoYo",
+    "publishAt": null,
+    "privacyStatus": "private"
+  },
+  {
+    "action": "uploaded_trimmed_short",
+    "video_id": "l7gHCoI_LF8",
+    "url": "https://youtu.be/l7gHCoI_LF8",
+    "publishAt": "2026-07-01T01:30:00Z",
+    "file": "/mnt/c/Users/LENOVO/Desktop/Ai/07_Reports/money_printer_CDRwF0F7TPE/final_upload_set_shorts/EP01_3min_money_printer_original_style_SHORTS_under3min.mp4",
+    "privacyStatus": "private",
+    "uploadStatus": "uploaded"
+  }
+]
