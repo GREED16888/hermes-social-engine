@@ -1,0 +1,24 @@
+[project]
+name="hermes-social-engine"
+version="0.5.0"
+requires-python=">=3.11"
+dependencies=[
+  "google-api-python-client>=2.187.0",
+  "google-auth-oauthlib>=1.2.2",
+  "google-auth>=2.43.0",
+  "requests>=2.32.0",
+]
+
+[project.scripts]
+hse="hse.cli:main"
+
+[build-system]
+requires=["setuptools>=68"]
+build-backend="setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where=["src"]
+
+[tool.pytest.ini_options]
+testpaths=["tests"]
+pythonpath=["src"]
