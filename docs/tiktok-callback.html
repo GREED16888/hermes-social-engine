@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TikTok OAuth Callback - Hermes Social Engine</title>
+  <style>body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;max-width:860px;margin:40px auto;padding:0 20px;line-height:1.6;color:#172033} code,textarea{background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;padding:8px} textarea{width:100%;height:90px} .ok{color:#047857;font-weight:700}.err{color:#b91c1c;font-weight:700}</style>
+</head>
+<body>
+  <h1>Hermes Social Engine TikTok OAuth Callback</h1>
+  <p>This page receives the TikTok authorization code for the account owner. Copy the code below and paste it into the local Hermes Social Engine OAuth helper.</p>
+  <div id="status"></div>
+  <h2>Authorization code</h2>
+  <textarea id="code" readonly></textarea>
+  <p><button onclick="navigator.clipboard.writeText(document.getElementById('code').value)">Copy code</button></p>
+  <h2>Next step</h2>
+  <pre><code>uv run hse tiktok-auth-code --code PASTE_CODE_HERE</code></pre>
+  <script>
+    const p = new URLSearchParams(window.location.search);
+    const code = p.get('code') || '';
+    const error = p.get('error') || '';
+    document.getElementById('code').value = code;
+    document.getElementById('status').innerHTML = error
+      ? '<p class="err">TikTok returned an error: '+error+'</p>'
+      : code ? '<p class="ok">Authorization code received. Copy it and return to Hermes.</p>'
+             : '<p class="err">No authorization code found in this URL.</p>';
+  </script>
+</body>
+</html>

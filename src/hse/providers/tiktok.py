@@ -61,7 +61,7 @@ def build_app_template(path: Path = DEFAULT_TIKTOK_APP) -> Path:
     data = _load_json(path) if path.exists() else {}
     data.setdefault("client_key", "PASTE_TIKTOK_CLIENT_KEY_HERE")
     data.setdefault("client_secret", "PASTE_TIKTOK_CLIENT_SECRET_HERE")
-    data.setdefault("redirect_uri", "http://localhost:8090/")
+    data.setdefault("redirect_uri", "https://greed16888.github.io/hermes-social-engine/tiktok-callback.html")
     data.setdefault("upload_mode", "inbox")
     _write_private_json(path, data)
     return path
@@ -205,6 +205,44 @@ def run_oauth_local_server(app_file: Path = DEFAULT_TIKTOK_APP, token_file: Path
     _write_private_json(token_file, payload)
     return Path(token_file)
 
+
+def exchange_auth_code(code: str, app_file: Path = DEFAULT_TIKTOK_APP, token_file: Path = DEFAULT_TIKTOK_TOKEN) -> Path:
+    app = _load_json(app_file)
+    client_key = str(app.get("client_key", "")).strip()
+    client_secret = str(app.get("client_secret", "")).strip()
+    redirect_uri = str(app.get("redirect_uri") or "https://greed16888.github.io/hermes-social-engine/tiktok-callback.html")
+    if not client_key or not client_secret or client_secret == "PASTE_TIKTOK_CLIENT_SECRET_HERE":
+        raise RuntimeError(f"TikTok app credentials missing. Edit {app_file} first.")
+    token = _request_json(
+        "https://open.tiktokapis.com/v2/oauth/token/",
+        method="POST",
+        data={
+            "client_key": client_key,
+            "client_secret": client_secret,
+            "code": code,
+            "grant_type": "authorization_code",
+            "redirect_uri": redirect_uri,
+        },
+    )
+    access_token = token.get("access_token")
+    if not access_token:
+        raise RuntimeError(f"TikTok token response missing access_token: {token}")
+    user = _request_json(
+        "https://open.tiktokapis.com/v2/user/info/?fields=open_id,union_id,avatar_url,display_name,username",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    payload = {
+        "client_key": client_key,
+        "access_token": access_token,
+        "refresh_token": token.get("refresh_token"),
+        "expires_in": token.get("expires_in"),
+        "refresh_expires_in": token.get("refresh_expires_in"),
+        "scope": token.get("scope"),
+        "open_id": (user.get("data", {}).get("user", {}) or {}).get("open_id") or token.get("open_id"),
+        "user": user.get("data", {}).get("user", {}),
+    }
+    _write_private_json(token_file, payload)
+    return Path(token_file)
 
 def token_summary(token_file: Path = DEFAULT_TIKTOK_TOKEN) -> str:
     data = _load_json(token_file)

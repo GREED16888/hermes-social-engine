@@ -48,6 +48,10 @@ def main(argv=None):
     ta.add_argument("--app-file", default=str(HOME / "secrets" / "tiktok_app.json"))
     ta.add_argument("--token-file", default=str(DATA / "tiktok_token.json"))
     ta.add_argument("--port", type=int, default=8090)
+    tac = sub.add_parser("tiktok-auth-code")
+    tac.add_argument("--code", required=True)
+    tac.add_argument("--app-file", default=str(HOME / "secrets" / "tiktok_app.json"))
+    tac.add_argument("--token-file", default=str(DATA / "tiktok_token.json"))
     sub.add_parser("tiktok-status")
     sub.add_parser("tiktok-creator-info")
 
@@ -123,6 +127,12 @@ def main(argv=None):
         from .providers.tiktok import run_oauth_local_server, client_key_preview, token_summary
         print(f"Using TikTok app {client_key_preview(Path(args.app_file))}; secret=[REDACTED]", flush=True)
         token = run_oauth_local_server(Path(args.app_file), Path(args.token_file), args.port)
+        print(f"TIKTOK_TOKEN_SAVED={token}")
+        print(token_summary(token))
+        return 0
+    if args.cmd == "tiktok-auth-code":
+        from .providers.tiktok import exchange_auth_code, token_summary
+        token = exchange_auth_code(args.code, Path(args.app_file), Path(args.token_file))
         print(f"TIKTOK_TOKEN_SAVED={token}")
         print(token_summary(token))
         return 0
