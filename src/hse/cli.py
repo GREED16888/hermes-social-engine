@@ -41,6 +41,9 @@ def main(argv=None):
     ma.add_argument("--app-file", default=str(HOME / "secrets" / "meta_app.json"))
     ma.add_argument("--token-file", default=str(DATA / "meta_token.json"))
     ma.add_argument("--port", type=int, default=8089)
+    au = sub.add_parser("media-audit")
+    au.add_argument("media_paths", nargs="+", help="Media files to preflight before batch upload")
+    au.add_argument("--similar-threshold", type=float, default=10.0)
     sub.add_parser("meta-status")
     tt = sub.add_parser("tiktok-template")
     tt.add_argument("--app-file", default=str(HOME / "secrets" / "tiktok_app.json"))
@@ -113,6 +116,17 @@ def main(argv=None):
         print(f"META_TOKEN_SAVED={token}")
         print(token_summary(token))
         return 0
+    if args.cmd == "media-audit":
+        from .media import audit_media_batch
+        result = audit_media_batch(args.media_paths, args.similar_threshold)
+        for left, right, sha in result.exact_duplicates:
+            print(f"EXACT_DUPLICATE\t{sha}\t{left}\t{right}")
+        for left, right, distance in result.similar_videos:
+            print(f"SIMILAR_VIDEO\tdistance={distance:.2f}\t{left}\t{right}")
+        for warning in result.warnings:
+            print(f"WARNING\t{warning}")
+        print("MEDIA_AUDIT_OK" if result.ok else "MEDIA_AUDIT_FAILED")
+        return 0 if result.ok else 2
     if args.cmd == "meta-status":
         from .providers.meta import token_summary, DEFAULT_META_TOKEN
         print(token_summary(DEFAULT_META_TOKEN))

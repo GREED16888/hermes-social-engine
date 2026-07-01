@@ -19,6 +19,23 @@ class Store:
         self.conn.commit(); return info
     def add_post(self,platform,content,scheduled_at,media_path=None,status=STATUS_SCHEDULED):
         media_info=self.register_media(media_path) if media_path else None
+        if media_info:
+            duplicate = self.conn.execute(
+                """
+                SELECT p.id, p.media_path, p.status
+                FROM posts p
+                JOIN media m ON m.path = p.media_path
+                WHERE p.platform=? AND m.sha256=? AND p.status IN ('scheduled','publishing','posted')
+                ORDER BY p.id DESC LIMIT 1
+                """,
+                (platform, media_info['sha256']),
+            ).fetchone()
+            if duplicate:
+                raise ValueError(
+                    f"duplicate media blocked for platform={platform}: "
+                    f"sha256={media_info['sha256']} already used by post_id={duplicate['id']} "
+                    f"status={duplicate['status']} path={duplicate['media_path']}"
+                )
         now=utcnow().isoformat(); cur=self.conn.execute("INSERT INTO posts(platform,content,media_path,scheduled_at,status,created_at,updated_at) VALUES(?,?,?,?,?,?,?)",(platform,content,media_path,scheduled_at.isoformat(),status,now,now)); pid=int(cur.lastrowid); self.event(pid,"created",platform); 
         if media_info: self.event(pid,"media_registered",media_info['sha256'])
         self.conn.commit(); return pid
