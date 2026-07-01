@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HSE Creator Ops Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Hermes Social Engine</p>
+        <h1>Creator Ops Command Center</h1>
+        <p class="subtitle">Revenue-first publishing, safety checks, and platform readiness in one local dashboard.</p>
+      </div>
+      <div class="hero-actions">
+        <span id="generated" class="pill">loading…</span>
+        <a class="button" href="/api/overview">API</a>
+      </div>
+    </header>
+
+    <section class="grid cards" id="platforms"></section>
+
+    <section class="grid two">
+      <article class="panel">
+        <div class="panel-head"><h2>Publishing overview</h2><span class="muted">live SQLite</span></div>
+        <div id="overview" class="metric-grid"></div>
+      </article>
+      <article class="panel">
+        <div class="panel-head"><h2>Revenue layer</h2><span class="warning">import-ready</span></div>
+        <div id="revenue" class="revenue-box"></div>
+      </article>
+    </section>
+
+    <section class="grid two">
+      <article class="panel">
+        <div class="panel-head"><h2>Safety control center</h2><span id="riskBadge" class="pill">checking</span></div>
+        <div id="risks"></div>
+      </article>
+      <article class="panel">
+        <div class="panel-head"><h2>Long-term build path</h2><span class="muted">Postiz++</span></div>
+        <ol class="roadmap">
+          <li><b>Now:</b> local FastAPI dashboard, platform cards, posts/events/media, risk flags.</li>
+          <li><b>Next:</b> analytics collectors for YouTube + Meta insights.</li>
+          <li><b>Commerce:</b> TikTok Shop manual basket + CSV/API revenue attribution.</li>
+          <li><b>Scale:</b> campaign model, revenue-per-clip ranking, Telegram daily briefing.</li>
+        </ol>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Latest posts</h2><span class="muted">creator-facing metadata only</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Platform</th><th>Status</th><th>Schedule</th><th>Content</th><th>URL</th></tr></thead>
+          <tbody id="posts"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>

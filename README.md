@@ -31,6 +31,28 @@ uv run hse init
 uv run hse platform-status
 ```
 
+Creator Ops Dashboard:
+
+```bash
+uv run hse dashboard --host 127.0.0.1 --port 8000
+```
+
+Open:
+
+```text
+http://127.0.0.1:8000
+```
+
+Dashboard API endpoints:
+
+```text
+/api/status
+/api/overview
+/api/posts
+/api/media
+/api/revenue
+```
+
 Dry run:
 
 ```bash
@@ -90,6 +112,8 @@ uv run hse run-due
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md)
+- [Dashboard MVP](docs/DASHBOARD_MVP.md)
+- [Agy dashboard architecture review](docs/AGY_DASHBOARD_REVIEW_2026-07-02.md)
 - [Account connection guide](docs/ACCOUNT_CONNECT_GUIDE.md)
 - [Meta/TikTok connection plan](docs/META_TIKTOK_CONNECT_PLAN.md)
 - [Meta publishing policy](docs/META_PUBLISHING_POLICY.md)

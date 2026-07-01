@@ -30,6 +30,10 @@ def main(argv=None):
     nt = sub.add_parser("notify-test")
     nt.add_argument("--message", default="Hermes Social Engine notification test")
     sub.add_parser("platform-status")
+    ds = sub.add_parser("dashboard")
+    ds.add_argument("--host", default="127.0.0.1")
+    ds.add_argument("--port", type=int, default=8000)
+    ds.add_argument("--reload", action="store_true")
     ya = sub.add_parser("youtube-auth")
     ya.add_argument("--client-secrets", default=str(HOME / "secrets" / "google_oauth_client.json"))
     ya.add_argument("--token-file", default=str(DATA / "youtube_token.json"))
@@ -96,6 +100,10 @@ def main(argv=None):
         from .providers import credential_status
         for k,v in credential_status().items():
             print(f"{k}={'ready' if v else 'missing_credentials'}")
+        return 0
+    if args.cmd == "dashboard":
+        import uvicorn
+        uvicorn.run("hse.dashboard.main:app", host=args.host, port=args.port, reload=args.reload)
         return 0
     if args.cmd == "youtube-auth":
         from .providers.youtube import run_oauth_local_server, client_id_preview
