@@ -21,6 +21,9 @@ def main(argv=None):
     a.add_argument("--content", required=True)
     a.add_argument("--when", required=True)
     a.add_argument("--media-path")
+    a.add_argument("--account", help="Named account/channel key, e.g. youtube_en or youtube_th")
+    acct = sub.add_parser("accounts")
+    acct.add_argument("--platform")
     sub.add_parser("run-due")
     sub.add_parser("list")
     ev = sub.add_parser("events")
@@ -36,8 +39,15 @@ def main(argv=None):
     ds.add_argument("--reload", action="store_true")
     ya = sub.add_parser("youtube-auth")
     ya.add_argument("--client-secrets", default=str(HOME / "secrets" / "google_oauth_client.json"))
-    ya.add_argument("--token-file", default=str(DATA / "youtube_token.json"))
+    ya.add_argument("--token-file", help="Override token output path. Prefer --account for multi-channel.")
+    ya.add_argument("--account", help="Named YouTube channel/account key, e.g. youtube_en or youtube_th")
+    ya.add_argument("--label", help="Human label to store after OAuth verification")
+    ya.add_argument("--language", choices=["th", "en", "other"], help="Channel language label")
+    ya.add_argument("--max-posts-per-day", type=int, default=1)
     ya.add_argument("--port", type=int, default=8088)
+    ys = sub.add_parser("youtube-status")
+    ys.add_argument("--account")
+    ys.add_argument("--token-file")
     mt = sub.add_parser("meta-template")
     mt.add_argument("--app-id", default="1464342022114588")
     mt.add_argument("--app-file", default=str(HOME / "secrets" / "meta_app.json"))
@@ -72,7 +82,12 @@ def main(argv=None):
         print(f"OK db={args.db}")
         return 0
     if args.cmd == "add":
-        print(f"ADDED id={s.add_post(args.platform, args.content, parse_when(args.when), args.media_path)}")
+        print(f"ADDED id={s.add_post(args.platform, args.content, parse_when(args.when), args.media_path, account=args.account)}")
+        return 0
+    if args.cmd == "accounts":
+        print("platform\taccount\tstatus\tlanguage\tmax_posts_per_day\tlabel\ttoken_path")
+        for row in s.list_accounts(args.platform):
+            print(f"{row['platform']}\t{row['account']}\t{row['status']}\t{row.get('language') or ''}\t{row['max_posts_per_day']}\t{row.get('label') or ''}\t{row.get('token_path') or ''}")
         return 0
     if args.cmd == "run-due":
         notifier = build_notifier(data_dir, args.notify)
@@ -80,9 +95,10 @@ def main(argv=None):
             print(f"{pid}\t{st}")
         return 0
     if args.cmd == "list":
-        print("id\tstatus\tplatform\tattempts\tscheduled_at\trelease_url\tcontent")
+        print("id\tstatus\tplatform\taccount\tattempts\tscheduled_at\trelease_url\tcontent")
         for j in s.list_posts():
-            print(f"{j.id}\t{j.status}\t{j.platform}\t{j.attempts}\t{j.scheduled_at.isoformat()}\t{j.release_url or ''}\t{j.content[:80]}")
+            acct = j.account or ''
+            print(f"{j.id}\t{j.status}\t{j.platform}\t{acct}\t{j.attempts}\t{j.scheduled_at.isoformat()}\t{j.release_url or ''}\t{j.content[:80]}")
         return 0
     if args.cmd == "events":
         print("id\tpost_id\ttype\tcreated_at\tmessage")
@@ -106,10 +122,32 @@ def main(argv=None):
         uvicorn.run("hse.dashboard.main:app", host=args.host, port=args.port, reload=args.reload)
         return 0
     if args.cmd == "youtube-auth":
-        from .providers.youtube import run_oauth_local_server, client_id_preview
+        from .providers.youtube import run_oauth_local_server, client_id_preview, channel_identity
+        from .accounting import youtube_token_path
         print(f"Using OAuth client {client_id_preview(Path(args.client_secrets))}; secret=[REDACTED]", flush=True)
-        token = run_oauth_local_server(Path(args.client_secrets), Path(args.token_file), args.port)
+        token_path = Path(args.token_file) if args.token_file else youtube_token_path(data_dir, args.account)
+        token = run_oauth_local_server(Path(args.client_secrets), token_path, args.port)
         print(f"YOUTUBE_TOKEN_SAVED={token}")
+        try:
+            ident = channel_identity(token)
+            print(f"YOUTUBE_CHANNEL_ID={ident.get('channel_id') or ''}")
+            print(f"YOUTUBE_CHANNEL_TITLE={ident.get('title') or ''}")
+            if args.account:
+                s.upsert_account('youtube', args.account, label=args.label or ident.get('title'), language=args.language, token_path=str(token), max_posts_per_day=args.max_posts_per_day)
+                print(f"YOUTUBE_ACCOUNT_REGISTERED={args.account}")
+        except Exception as e:
+            print(f"YOUTUBE_CHANNEL_VERIFY_FAILED={type(e).__name__}: {e}")
+            if args.account:
+                s.upsert_account('youtube', args.account, label=args.label, language=args.language, token_path=str(token), max_posts_per_day=args.max_posts_per_day, status='needs_verify')
+        return 0
+    if args.cmd == "youtube-status":
+        from .providers.youtube import channel_identity
+        from .accounting import youtube_token_path
+        token_path = Path(args.token_file) if args.token_file else youtube_token_path(data_dir, args.account)
+        print(f"YOUTUBE_TOKEN_FILE={token_path}")
+        ident = channel_identity(token_path)
+        print(f"YOUTUBE_CHANNEL_ID={ident.get('channel_id') or ''}")
+        print(f"YOUTUBE_CHANNEL_TITLE={ident.get('title') or ''}")
         return 0
     if args.cmd == "meta-template":
         from .providers.meta import build_app_template

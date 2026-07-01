@@ -15,7 +15,7 @@ class Scheduler:
                 continue
             claimed = next(p for p in self.store.list_posts() if p.id == job.id)
             try:
-                r = get_provider(claimed.platform, self.data_dir).publish(claimed)
+                r = get_provider(claimed.platform, self.data_dir, claimed.account).publish(claimed)
                 self.store.mark_posted(claimed.id, r.provider_post_id, r.release_url)
                 self.notifier.send(Notification('success', 'HSE posted', f'{claimed.platform}: {r.release_url}', claimed.id))
                 out.append((claimed.id, "posted"))

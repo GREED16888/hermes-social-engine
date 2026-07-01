@@ -13,4 +13,4 @@ def parse_when(v:str):
     return d.astimezone(timezone.utc)
 @dataclass(frozen=True)
 class PostJob:
-    id:int; platform:str; content:str; scheduled_at:datetime; status:str; media_path:Optional[str]=None; provider_post_id:Optional[str]=None; release_url:Optional[str]=None; attempts:int=0; last_error:Optional[str]=None
+    id:int; platform:str; content:str; scheduled_at:datetime; status:str; media_path:Optional[str]=None; provider_post_id:Optional[str]=None; release_url:Optional[str]=None; attempts:int=0; last_error:Optional[str]=None; account:Optional[str]=None

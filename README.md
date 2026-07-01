@@ -48,6 +48,7 @@ Dashboard API endpoints:
 ```text
 /api/status
 /api/overview
+/api/accounts
 /api/posts
 /api/media
 /api/revenue

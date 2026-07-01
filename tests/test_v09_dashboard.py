@@ -16,6 +16,14 @@ def test_dashboard_status_endpoint():
     assert 'youtube' in data['platforms']
 
 
+def test_dashboard_accounts_endpoint():
+    client = TestClient(app)
+    r = client.get('/api/accounts')
+    assert r.status_code == 200
+    data = r.json()
+    assert 'accounts' in data
+
+
 def test_dashboard_home_loads():
     client = TestClient(app)
     r = client.get('/')

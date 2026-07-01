@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Iterable
 
 from hse.models import PostJob
+from hse.accounting import youtube_token_path, validate_account_name
 
 YOUTUBE_UPLOAD_SCOPE = "https://www.googleapis.com/auth/youtube.upload"
 YOUTUBE_MANAGE_SCOPE = "https://www.googleapis.com/auth/youtube.force-ssl"
@@ -25,6 +26,10 @@ def has_client_secret(path: Path = DEFAULT_CLIENT_SECRETS) -> bool:
         return bool(data.get("installed", {}).get("client_id") and data.get("installed", {}).get("client_secret"))
     except Exception:
         return False
+
+
+def account_token_file(account: str | None = None, data_dir: Path | None = None) -> Path:
+    return youtube_token_path(data_dir or (DEFAULT_ROOT / "data"), account)
 
 
 def has_token(path: Path = DEFAULT_TOKEN_FILE) -> bool:
@@ -89,6 +94,19 @@ def credentials_from_token(token_file: Path = DEFAULT_TOKEN_FILE):
     from google.oauth2.credentials import Credentials
     data = _load_json(Path(token_file))
     return Credentials.from_authorized_user_info(data, scopes=list(data.get("scopes") or YOUTUBE_SCOPES))
+
+
+def channel_identity(token_file: Path = DEFAULT_TOKEN_FILE) -> dict:
+    """Read the authorized channel identity without exposing token data."""
+    from googleapiclient.discovery import build
+    creds = credentials_from_token(token_file)
+    service = build("youtube", "v3", credentials=creds)
+    resp = service.channels().list(part="id,snippet", mine=True).execute()
+    items = resp.get("items") or []
+    if not items:
+        return {"channel_id": None, "title": None}
+    item = items[0]
+    return {"channel_id": item.get("id"), "title": (item.get("snippet") or {}).get("title")}
 
 
 class YouTubeProvider:

@@ -79,6 +79,28 @@ def api_status() -> dict[str, Any]:
     }
 
 
+@app.get("/api/accounts")
+def api_accounts(platform: str | None = None) -> dict[str, Any]:
+    conn = _connect()
+    try:
+        if platform:
+            rows = conn.execute("SELECT * FROM accounts WHERE platform=? ORDER BY platform, account", (platform,)).fetchall()
+        else:
+            rows = conn.execute("SELECT * FROM accounts ORDER BY platform, account").fetchall()
+        accounts = []
+        for row in rows:
+            account = _row_dict(row)
+            # Do not expose absolute token paths in the browser; show only readiness and filename.
+            token_path = account.get("token_path")
+            account["token_file"] = Path(token_path).name if token_path else None
+            account["token_ready"] = bool(token_path and Path(token_path).exists())
+            account.pop("token_path", None)
+            accounts.append(account)
+        return {"accounts": accounts, "count": len(accounts)}
+    finally:
+        conn.close()
+
+
 @app.get("/api/posts")
 def api_posts(limit: int = 100) -> dict[str, Any]:
     conn = _connect()
